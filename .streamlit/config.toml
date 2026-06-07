@@ -1,7 +1,14 @@
 # App theme. Streamlit reads this at startup (restart the server to apply changes).
 [theme]
-primaryColor = "#003399"            # Royal Blue - buttons, sliders, active widgets, links
-backgroundColor = "#FFFFFF"          # main page background (white)
-secondaryBackgroundColor = "#DBDBDB" # Premium Grey - sidebar, metric cards, table headers
-textColor = "#1A1A1A"                # near-black body text for contrast
+primaryColor = "#003399"             # Royal Blue - widget accents, focus rings, buttons
+backgroundColor = "#DBDBDB"          # Premium Grey - main page background
+secondaryBackgroundColor = "#FFFFFF" # white - input boxes / metric cards pop on the grey page
+textColor = "#1A1A1A"                # near-black body text
 font = "sans serif"
+
+# Sidebar gets its OWN colors (Royal Blue background, white text).
+[theme.sidebar]
+backgroundColor = "#003399"          # Royal Blue sidebar
+secondaryBackgroundColor = "#002A80" # darker blue for sidebar controls
+textColor = "#FFFFFF"                # white nav text on blue
+primaryColor = "#FFFFFF"             # white accents (active page highlight) in the sidebar
