@@ -1,6 +1,7 @@
 import os
 import streamlit as st
 import pandas as pd
+from branding import header
 
 # This file lives in model_study/pages/, so the project folder (with the CSVs) is TWO levels up:
 #   __file__               -> .../model_study/pages/1_Leaderboards.py
@@ -8,7 +9,7 @@ import pandas as pd
 #   dirname(dirname(...))  -> .../model_study      <- the CSVs are here
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-st.title("Leaderboards")
+header("Leaderboards", "Model rankings by cross-validation score")
 st.write("Models ranked by cross-validation score. Overlapping +/- std means a statistical tie.")
 
 

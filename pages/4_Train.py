@@ -3,6 +3,7 @@ import sys
 import hmac
 import subprocess
 import streamlit as st
+from branding import header
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # model_study/
 PY = sys.executable   # the same Python that runs this app (the venv interpreter)
@@ -10,7 +11,7 @@ PY = sys.executable   # the same Python that runs this app (the venv interpreter
 # Run child scripts headless so they never try to pop open a window / PDF on the server.
 ENV = {**os.environ, "MPLBACKEND": "Agg", "LEADERBOARD_SHOW": "0"}
 
-st.title("Train (owner only)")
+header("Train", "Owner only - retrain and update the deployed models")
 
 
 # --------------------------------------------------------------------------

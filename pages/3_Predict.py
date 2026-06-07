@@ -3,6 +3,7 @@ import json
 import joblib
 import pandas as pd
 import streamlit as st
+from branding import header
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # model_study/
 MODELS_DIR = os.path.join(HERE, "models")
@@ -48,7 +49,7 @@ def feature_medians():
         return FALLBACK
 
 
-st.title("Predict")
+header("Predict", "Default probability, loss given default, and expected loss")
 
 try:
     clf, reg = load_models()

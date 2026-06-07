@@ -1,10 +1,11 @@
 import os
 import streamlit as st
+from branding import header
 
 # Project folder (one level up from pages/), where the PNG charts live.
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-st.title("Charts")
+header("Charts", "Performance distributions & feature importance")
 st.write("Pick a task and a chart. These images are produced by the study scripts.")
 
 # Friendly chart name -> PNG filename, grouped by task.
