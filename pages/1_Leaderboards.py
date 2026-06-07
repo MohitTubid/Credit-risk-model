@@ -14,8 +14,12 @@ st.write("Models ranked by cross-validation score. Overlapping +/- std means a s
 
 
 def ranked(csv_name, metric):
-    """Read a results CSV, keep the latest run per model, and rank by `metric` (descending)."""
-    df = pd.read_csv(os.path.join(HERE, csv_name))
+    """Read a results CSV, keep the latest run per model, and rank by `metric` (descending).
+    Returns None if the file isn't present (e.g. a stale deployment)."""
+    path = os.path.join(HERE, csv_name)
+    if not os.path.exists(path):
+        return None
+    df = pd.read_csv(path)
     if "timestamp" in df.columns:
         df = df.sort_values("timestamp").drop_duplicates("model", keep="last")
     df = df.sort_values(metric, ascending=False).reset_index(drop=True)
@@ -28,8 +32,15 @@ def white(df):
     return df.style.set_properties(**{"background-color": "white", "color": "#1A1A1A"})
 
 
-st.subheader("Classification - default_time (ranked by CV PR-AUC)")
-st.dataframe(white(ranked("cv_classification.csv", "CV_PR_AUC_mean")), width="stretch")
+def show(csv_name, metric, title):
+    st.subheader(title)
+    df = ranked(csv_name, metric)
+    if df is None:
+        st.error(f"`{csv_name}` wasn't found in this deployment. If you just pushed new files, "
+                 f"reboot the app (Manage app -> Reboot) to pull the latest from GitHub.")
+    else:
+        st.dataframe(white(df), width="stretch")
 
-st.subheader("Regression - lgd_time (ranked by CV R^2)")
-st.dataframe(white(ranked("cv_regression.csv", "CV_R2_mean")), width="stretch")
+
+show("cv_classification.csv", "CV_PR_AUC_mean", "Classification - default_time (ranked by CV PR-AUC)")
+show("cv_regression.csv", "CV_R2_mean", "Regression - lgd_time (ranked by CV R^2)")
