@@ -50,7 +50,22 @@ if not check_password():
 # --------------------------------------------------------------------------
 # Unlocked owner controls
 # --------------------------------------------------------------------------
-st.success("Unlocked. You can retrain / update the deployed models here.")
+st.success("Unlocked.")
+
+# Retraining needs the RAW dataset, which is NOT deployed (kept private) and the free hosted
+# tier can't train anyway. Detect that and guide the owner to retrain locally instead of
+# launching a subprocess that would fail with a FileNotFoundError.
+from ml_eval import DATA_PATH, REG_DATA_PATH
+can_train = os.path.exists(DATA_PATH) and os.path.exists(REG_DATA_PATH)
+if not can_train:
+    st.info(
+        "**Retraining runs locally, not on the hosted app.** The raw dataset isn't deployed "
+        "(kept private) and the free tier isn't sized for training. To update the live models:\n\n"
+        "1. On your machine: `python save_models.py` (quick refresh) or `run_study_*.py` (full re-run)\n"
+        "2. `git add models/ cv_*.csv *.png feature_defaults.json`\n"
+        "3. `git commit -m \"update models\" && git push`\n\n"
+        "Streamlit Cloud redeploys automatically with the new models."
+    )
 
 
 def run_and_stream(steps):
@@ -78,7 +93,7 @@ def run_and_stream(steps):
 st.subheader("1. Refresh deployed models")
 st.caption("Refits the current leaderboard winners on the latest data and updates the "
            "Predict page. ~5-8 minutes.")
-if st.button("Refresh models now", type="primary"):
+if st.button("Refresh models now", type="primary", disabled=not can_train):
     ok = run_and_stream([([PY, "save_models.py"], "Refreshing models")])
     if ok:
         st.cache_resource.clear()   # force the Predict page to load the NEW models
@@ -89,7 +104,7 @@ st.divider()
 st.subheader("2. Full re-run (advanced, slow)")
 st.caption("Re-runs BOTH studies (re-tunes all 9 models per task), then refreshes the "
            "saved models and all charts. Can take 20+ minutes - keep this tab open.")
-if st.button("Re-run the full study"):
+if st.button("Re-run the full study", disabled=not can_train):
     ok = run_and_stream([
         ([PY, "run_study_classification.py"], "Classification study"),
         ([PY, "run_study_regression.py"], "Regression study"),
