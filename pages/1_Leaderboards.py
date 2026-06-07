@@ -23,6 +23,7 @@ def ranked(csv_name, metric):
     if "timestamp" in df.columns:
         df = df.sort_values("timestamp").drop_duplicates("model", keep="last")
     df = df.sort_values(metric, ascending=False).reset_index(drop=True)
+    df = df.drop(columns=["timestamp"], errors="ignore")   # used for sorting only, not shown
     df.insert(0, "rank", range(1, len(df) + 1))
     return df
 
