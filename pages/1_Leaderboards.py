@@ -23,8 +23,13 @@ def ranked(csv_name, metric):
     return df
 
 
+def white(df):
+    """Paint the table cells white (the page background is grey)."""
+    return df.style.set_properties(**{"background-color": "white", "color": "#1A1A1A"})
+
+
 st.subheader("Classification - default_time (ranked by CV PR-AUC)")
-st.dataframe(ranked("cv_classification.csv", "CV_PR_AUC_mean"), width="stretch")
+st.dataframe(white(ranked("cv_classification.csv", "CV_PR_AUC_mean")), width="stretch")
 
 st.subheader("Regression - lgd_time (ranked by CV R^2)")
-st.dataframe(ranked("cv_regression.csv", "CV_R2_mean"), width="stretch")
+st.dataframe(white(ranked("cv_regression.csv", "CV_R2_mean")), width="stretch")
