@@ -1,0 +1,14 @@
+# Pinned to the exact versions used to TRAIN and PICKLE the models.
+# Matching versions matters: a different scikit-learn / catboost / xgboost can fail to
+# load the saved .joblib model files. Keep these in sync with your local environment.
+streamlit==1.58.0
+pandas==3.0.2
+numpy==2.4.4
+scikit-learn==1.8.0
+scipy==1.17.1
+matplotlib==3.10.9
+seaborn==0.13.2
+xgboost==3.2.0
+lightgbm==4.6.0
+catboost==1.2.10
+joblib==1.5.3

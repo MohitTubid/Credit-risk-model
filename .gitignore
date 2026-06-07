@@ -1,0 +1,14 @@
+# Never publish your real password
+.streamlit/secrets.toml
+
+# Keep the RAW credit data private. The app serves predictions from feature_defaults.json
+# + the saved models, so the deployed app does NOT need these.
+default_data.csv
+Loss_Data.csv
+
+# Python cruft
+__pycache__/
+*.pyc
+
+# Generated PDFs (PNGs/CSVs/models are kept so the cloud renders without re-running)
+*.pdf
