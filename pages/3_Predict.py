@@ -3,7 +3,32 @@ import json
 import joblib
 import pandas as pd
 import streamlit as st
+import plotly.graph_objects as go
 from branding import header
+
+
+def prob_gauge(prob, threshold):
+    """A speedometer-style gauge for the default probability, with a threshold marker."""
+    pct = prob * 100
+    axmax = max(25.0, pct * 1.4)
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=pct,
+        number={"suffix": "%", "valueformat": ".1f", "font": {"size": 36, "color": "#003399"}},
+        gauge={
+            "axis": {"range": [0, axmax], "ticksuffix": "%"},
+            "bar": {"color": "#003399"},
+            "steps": [
+                {"range": [0, threshold * 100], "color": "#d7ecd7"},          # below cutoff
+                {"range": [threshold * 100, axmax], "color": "#f3c9c9"},      # above cutoff
+            ],
+            "threshold": {"line": {"color": "#b30000", "width": 3},
+                          "thickness": 0.85, "value": threshold * 100},
+        },
+    ))
+    fig.update_layout(height=260, margin=dict(l=30, r=30, t=20, b=10),
+                      paper_bgcolor="rgba(0,0,0,0)")
+    return fig
 
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # model_study/
 MODELS_DIR = os.path.join(HERE, "models")
@@ -84,6 +109,7 @@ exp_loss_frac = pd_prob * lgd_clamped                            # PD x LGD
 exp_loss_dollars = exp_loss_frac * vals["balance_time"]          # x exposure (balance)
 
 st.subheader("Results")
+st.plotly_chart(prob_gauge(pd_prob, threshold), use_container_width=True)
 c1, c2, c3 = st.columns(3)
 c1.metric("Probability of default", f"{pd_prob:.1%}")
 c1.write("Flag: **DEFAULT LIKELY**" if pd_prob >= threshold else "Flag: unlikely")

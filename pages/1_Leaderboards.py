@@ -1,6 +1,7 @@
 import os
 import streamlit as st
 import pandas as pd
+import altair as alt
 from branding import header
 
 # This file lives in model_study/pages/, so the project folder (with the CSVs) is TWO levels up:
@@ -42,14 +43,35 @@ def white(df):
     return df.style.set_properties(**{"background-color": "white", "color": "#1A1A1A"})
 
 
+def altair_bar(csv_name, mean_col, std_col, axis_title):
+    """Interactive horizontal bar chart with +/-std error bars and hover tooltips."""
+    df = pd.read_csv(os.path.join(HERE, csv_name))
+    if "timestamp" in df.columns:
+        df = df.sort_values("timestamp").drop_duplicates("model", keep="last")
+    df = df[["model", mean_col, std_col]].copy()
+    df["lo"] = df[mean_col] - df[std_col]
+    df["hi"] = df[mean_col] + df[std_col]
+    base = alt.Chart(df).encode(y=alt.Y("model:N", sort="-x", title=None))
+    bars = base.mark_bar(color="#003399").encode(
+        x=alt.X(f"{mean_col}:Q", title=axis_title),
+        tooltip=[alt.Tooltip("model:N", title="Model"),
+                 alt.Tooltip(f"{mean_col}:Q", title=axis_title, format=".4f"),
+                 alt.Tooltip(f"{std_col}:Q", title="std", format=".4f")],
+    )
+    err = base.mark_errorbar(color="#444").encode(x=alt.X("lo:Q", title=axis_title), x2="hi:Q")
+    return (bars + err).properties(height=300, width="container")
+
+
 def show(csv_name, metric, title):
     st.subheader(title)
     df = ranked(csv_name, metric)
     if df is None:
         st.error(f"`{csv_name}` wasn't found in this deployment. If you just pushed new files, "
                  f"reboot the app (Manage app -> Reboot) to pull the latest from GitHub.")
-    else:
-        st.dataframe(white(df), width="stretch")
+        return
+    st.dataframe(white(df), width="stretch")
+    std_col = metric.replace("_mean", "_std")
+    st.altair_chart(altair_bar(csv_name, metric, std_col, COLUMN_LABELS.get(metric, metric)))
 
 
 show("cv_classification.csv", "CV_PR_AUC_mean", "Classification - default_time (ranked by CV PR-AUC)")

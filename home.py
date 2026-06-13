@@ -18,3 +18,28 @@ st.markdown(
 - **Train** — retrain and evaluate models (owner access)
     """
 )
+
+st.divider()
+st.subheader("How it works")
+
+# A Graphviz DOT diagram of the pipeline (rendered in-browser; no graphviz binary needed).
+# Raw string so the \n in node labels stay literal for Graphviz to interpret as line breaks.
+DOT = r"""
+digraph {
+  rankdir=LR;
+  bgcolor="transparent";
+  node [shape=box, style="rounded,filled", fillcolor="#FFFFFF",
+        color="#003399", fontname="Helvetica", fontsize=11];
+  edge [color="#003399"];
+  data    [label="Loan data"];
+  clean   [label="Clean +\nselect features"];
+  split   [label="Group split\nby loan id"];
+  tune    [label="Tune 9 models\n(per task)"];
+  rank    [label="Grouped-CV rank\n(mean +/- std)"];
+  winner  [label="Winner", fillcolor="#003399", fontcolor="white"];
+  predict [label="Predict:\nPD x LGD = Expected Loss", fillcolor="#003399", fontcolor="white"];
+  data -> clean -> split -> tune -> rank -> winner -> predict;
+}
+"""
+st.graphviz_chart(DOT, use_container_width=True)
+
