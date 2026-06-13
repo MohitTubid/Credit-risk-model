@@ -1,14 +1,57 @@
 import os
 import streamlit as st
+import pandas as pd
+import pydeck as pdk
 from branding import header
 
-# Project folder (one level up from pages/), where the PNG charts live.
+# Project folder (one level up from pages/), where the data files live.
 HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-header("Insights", "Performance distributions & feature importance")
-st.write("Pick a task and a chart. These images are produced by the study scripts.")
+header("Insights", "Geographic risk, performance distributions & feature importance")
 
-# Friendly chart name -> PNG filename, grouped by task.
+# ----------------------------------------------------------------------
+# 3D map: observed default rate by US state (from precomputed state_stats.csv)
+# ----------------------------------------------------------------------
+st.subheader("Default risk by US state")
+state_path = os.path.join(HERE, "state_stats.csv")
+if os.path.exists(state_path):
+    sdf = pd.read_csv(state_path)
+    # Red gradient: higher default rate -> deeper red.
+    mx = max(float(sdf["default_rate"].max()), 1e-9)
+    sdf["r"] = 220
+    sdf["g"] = (200 * (1 - sdf["default_rate"] / mx)).round().astype(int)
+    sdf["b"] = 60
+
+    layer = pdk.Layer(
+        "ColumnLayer",
+        data=sdf,
+        get_position=["lon", "lat"],
+        get_elevation="default_rate",
+        elevation_scale=3_000_000,     # default_rate is ~0.01-0.06; scale up to visible columns
+        radius=45000,
+        get_fill_color=["r", "g", "b", 200],
+        pickable=True,
+        auto_highlight=True,
+    )
+    view = pdk.ViewState(latitude=39.5, longitude=-98, zoom=3.2, pitch=45)
+    tooltip = {
+        "html": "<b>{state}</b><br/>Default rate: {default_pct}%<br/>"
+                "Avg LGD: {avg_lgd}<br/>Loans: {n}",
+        "style": {"backgroundColor": "#003399", "color": "white"},
+    }
+    st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view, tooltip=tooltip))
+    st.caption("Column height & redness = observed default rate. Hover a state for details.")
+else:
+    st.info("`state_stats.csv` not found - run `make_state_stats.py` to generate it.")
+
+st.divider()
+
+# ----------------------------------------------------------------------
+# Performance charts (PNGs produced by the study scripts)
+# ----------------------------------------------------------------------
+st.subheader("Performance charts")
+st.write("Pick a task and a chart.")
+
 CHARTS = {
     "Classification": {
         "Leaderboard - PR-AUC": "leaderboard_pr_auc.png",
@@ -26,17 +69,11 @@ CHARTS = {
     },
 }
 
-# WIDGET 1: a radio button. Returns the label the user picked (a string).
 task = st.radio("Task", list(CHARTS.keys()), horizontal=True)
-
-# WIDGET 2: a dropdown, whose options depend on the task chosen above.
 chart = st.selectbox("Chart", list(CHARTS[task].keys()))
 
-# Because the script re-runs top-to-bottom on every click, `task` and `chart`
-# always hold the current selections by the time we reach here.
 filename = CHARTS[task][chart]
 path = os.path.join(HERE, filename)
-
 if os.path.exists(path):
     st.image(path, caption=f"{task} - {chart}", width="stretch")
 else:
