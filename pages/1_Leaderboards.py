@@ -92,7 +92,7 @@ def show(csv_name, metric, title):
         return
     std_col = metric.replace("_mean", "_std")
     axis_title = COLUMN_LABELS.get(metric, metric)
-    t1, t2, t3 = st.tabs(["Data bars", "Heatmap", "Caterpillar"])
+    t1, t2, t3 = st.tabs(["Data", "Heatmap", "Caterpillar"])
     with t1:
         databar_table(df, axis_title)
     with t2:
