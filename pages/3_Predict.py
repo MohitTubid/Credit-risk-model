@@ -109,7 +109,10 @@ exp_loss_frac = pd_prob * lgd_clamped                            # PD x LGD
 exp_loss_dollars = exp_loss_frac * vals["balance_time"]          # x exposure (balance)
 
 st.subheader("Results")
-st.plotly_chart(prob_gauge(pd_prob, threshold), use_container_width=True)
+# key tied to the value forces the gauge to re-render whenever PD changes.
+st.plotly_chart(prob_gauge(pd_prob, threshold), width="stretch", key=f"gauge_{pd_prob:.4f}")
+st.caption("PD reacts to FICO, balance, interest rate, maturity, and the macro inputs "
+           "(HPI / GDP / unemployment). Loan-to-value and Origination time affect only LGD.")
 c1, c2, c3 = st.columns(3)
 c1.metric("Probability of default", f"{pd_prob:.1%}")
 c1.write("Flag: **DEFAULT LIKELY**" if pd_prob >= threshold else "Flag: unlikely")
