@@ -12,6 +12,15 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 header("Leaderboards", "Model rankings by cross-validation score")
 st.write("Models ranked by cross-validation score. Overlapping +/- std means a statistical tie.")
 
+# Friendly display names for the raw CSV column headers.
+COLUMN_LABELS = {
+    "rank": "Rank", "model": "Model",
+    "CV_PR_AUC_mean": "PR-AUC", "CV_PR_AUC_std": "PR-AUC ±std",
+    "CV_ROC_AUC_mean": "ROC-AUC", "CV_ROC_AUC_std": "ROC-AUC ±std",
+    "CV_R2_mean": "R²", "CV_R2_std": "R² ±std",
+    "CV_RMSE_mean": "RMSE", "CV_RMSE_std": "RMSE ±std",
+}
+
 
 def ranked(csv_name, metric):
     """Read a results CSV, keep the latest run per model, and rank by `metric` (descending).
@@ -25,7 +34,7 @@ def ranked(csv_name, metric):
     df = df.sort_values(metric, ascending=False).reset_index(drop=True)
     df = df.drop(columns=["timestamp"], errors="ignore")   # used for sorting only, not shown
     df.insert(0, "rank", range(1, len(df) + 1))
-    return df
+    return df.rename(columns=COLUMN_LABELS)
 
 
 def white(df):
