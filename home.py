@@ -37,7 +37,7 @@ digraph {
   tune    [label="Tune 9 models\n(per task)"];
   rank    [label="Grouped-CV rank\n(mean +/- std)"];
   winner  [label="Winner", fillcolor="#003399", fontcolor="white"];
-  predict [label="Predict:\nPD x LGD = Expected Loss", fillcolor="#003399", fontcolor="white"];
+  predict [label="Predict:\nExpected Loss = PD x LGD x Exposure", fillcolor="#003399", fontcolor="white"];
   data -> clean -> split -> tune -> rank -> winner -> predict;
 }
 """
