@@ -39,7 +39,10 @@ if os.path.exists(state_path):
                 "Avg LGD: {avg_lgd}<br/>Loans: {n}",
         "style": {"backgroundColor": "#003399", "color": "white"},
     }
-    st.pydeck_chart(pdk.Deck(layers=[layer], initial_view_state=view, tooltip=tooltip))
+    st.pydeck_chart(pdk.Deck(
+        layers=[layer], initial_view_state=view, tooltip=tooltip,
+        map_style="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",  # light basemap
+    ))
     st.caption("Column height & redness = observed default rate. Hover a state for details.")
 else:
     st.info("`state_stats.csv` not found - run `make_state_stats.py` to generate it.")
